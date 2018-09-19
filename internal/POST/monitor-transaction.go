@@ -2,6 +2,7 @@ package post
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -43,6 +44,22 @@ func MonitorTransaction(writer http.ResponseWriter, request *http.Request) {
 	err = json.Unmarshal(body, &tx)
 	if err != nil {
 		message := err.Error()
+		badRequest.Message = message
+		badRequest.OnBadRequest(http.StatusInternalServerError)
+		return
+	}
+
+	if !tx.IsValid() {
+		message := fmt.Sprintf("Invalid transaction hash. Format must have 0x prefix and be of length %d", tx.Length()*2)
+		badRequest.Message = message
+		badRequest.OnBadRequest(http.StatusInternalServerError)
+		return
+	}
+
+	if tx.RecordExists() {
+		message := "Transaction record exists"
+		tx.GetRecordByHash(&tx).Row().Scan(&tx.Hash, &tx.From)
+		badRequest.Transaction = tx
 		badRequest.Message = message
 		badRequest.OnBadRequest(http.StatusInternalServerError)
 		return

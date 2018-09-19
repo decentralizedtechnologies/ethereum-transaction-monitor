@@ -13,4 +13,4 @@ triggers:
   kill_signal: ""
 watch_paths:
 - .
-watch_depth: 0
+watch_depth: 3

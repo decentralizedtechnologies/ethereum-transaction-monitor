@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"gitlab.com/canya-com/canwork-database-client/model"
 	appenginelog "google.golang.org/appengine/log"
 )
 
@@ -18,9 +19,10 @@ const (
 
 // BadRequest : describes the data structure for wrong requests
 type BadRequest struct {
-	Message string              `json:"message"`
-	Context context.Context     `json:"context"`
-	Writer  http.ResponseWriter `json:"writer"`
+	Message     string              `json:"message"`
+	Transaction model.Transaction   `json:"transaction"`
+	Context     context.Context     `json:"context"`
+	Writer      http.ResponseWriter `json:"writer"`
 }
 
 // OnBadRequest : writes a json error http response
