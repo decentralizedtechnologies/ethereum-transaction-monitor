@@ -1,0 +1,14 @@
+runtime: go
+api_version: go1
+
+nobuild_files: 
+  - internal/.*
+
+service: canya-ethereum-tx-agent
+
+env_variables:
+  NETWORK: 'ropsten'
+
+handlers:
+- url: /.*
+  script: _go_app
