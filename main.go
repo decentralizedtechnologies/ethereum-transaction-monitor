@@ -8,8 +8,6 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
 	database "gitlab.com/canya-com/canwork-database-client"
-	GET "gitlab.com/canya-com/canya-ethereum-tx-api/internal/GET"
-	POST "gitlab.com/canya-com/canya-ethereum-tx-api/internal/POST"
 	"google.golang.org/appengine"
 )
 
@@ -24,8 +22,12 @@ func init() {
 	loadEnvironmentFile()
 	makeDatabaseConnection()
 
-	http.HandleFunc("/tx/details", GET.TransactionDetails)
-	http.HandleFunc("/tx/monitor", POST.MonitorTransaction)
+	GET := GetRequest{}
+	POST := PostRequest{}
+
+	http.HandleFunc("/tx/details", GET.TransactionDetails())
+	http.HandleFunc("/tx/monitor", GET.MonitorTransaction())
+	http.HandleFunc("/tx/store", POST.StoreTransaction())
 }
 
 func main() {
