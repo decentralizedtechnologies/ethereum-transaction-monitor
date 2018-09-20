@@ -19,10 +19,10 @@ const (
 
 // BadRequest : describes the data structure for wrong requests
 type BadRequest struct {
-	Message     string              `json:"message"`
-	Transaction model.Transaction   `json:"transaction"`
-	Context     context.Context     `json:"context"`
-	Writer      http.ResponseWriter `json:"writer"`
+	Message     string              `json:"message,omitempty"`
+	Transaction model.Transaction   `json:"transaction,omitempty"`
+	Context     context.Context     `json:"context,omitempty"`
+	Writer      http.ResponseWriter `json:"writer,omitempty"`
 }
 
 // OnBadRequest : writes a json error http response
