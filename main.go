@@ -16,6 +16,8 @@ import (
 var (
 	// DatabaseClient : global gorm.DB instance
 	DatabaseClient *gorm.DB
+	// DefaultTimeout : 1 day
+	DefaultTimeout = 1
 )
 
 func init() {

@@ -21,8 +21,8 @@ const (
 type BadRequest struct {
 	Message     string              `json:"message,omitempty"`
 	Transaction model.Transaction   `json:"transaction,omitempty"`
-	Context     context.Context     `json:"context,omitempty"`
-	Writer      http.ResponseWriter `json:"writer,omitempty"`
+	Context     context.Context     `json:"-"`
+	Writer      http.ResponseWriter `json:"-"`
 }
 
 // OnBadRequest : writes a json error http response

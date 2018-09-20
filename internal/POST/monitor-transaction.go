@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
@@ -39,7 +40,11 @@ func MonitorTransaction(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	var tx model.Transaction
+	now := time.Now()
+	tx := model.Transaction{
+		CreatedAt: now.Unix(),
+		Timeout:   now.AddDate(0, 0, 1).Unix(),
+	}
 
 	err = json.Unmarshal(body, &tx)
 	if err != nil {
