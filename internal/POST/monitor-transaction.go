@@ -42,8 +42,7 @@ func MonitorTransaction(writer http.ResponseWriter, request *http.Request) {
 
 	now := time.Now()
 	tx := model.Transaction{
-		CreatedAt: now.Unix(),
-		Timeout:   now.AddDate(0, 0, 1).Unix(),
+		Timeout: now.AddDate(0, 0, 1).Unix(),
 	}
 
 	err = json.Unmarshal(body, &tx)
@@ -70,11 +69,13 @@ func MonitorTransaction(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	client := tx.New()
+	tx.CreatedAt = now.Unix()
 
-	err = client.Error
+	databaseClient := tx.New()
+
+	err = databaseClient.Error
 	if err != nil {
-		errors := client.GetErrors()
+		errors := databaseClient.GetErrors()
 		group := []HTTP.BadRequest{}
 		for _, err := range errors {
 			log.Errorf(badRequest.Context, err.Error())
