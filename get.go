@@ -32,6 +32,42 @@ func (r *GetRequest) MonitorTransaction() func(writer http.ResponseWriter, reque
 			badRequest.OnBadRequest(http.StatusForbidden)
 			return
 		}
+
+		var tx model.Transaction
+		txs := []model.Transaction{}
+
+		databaseClient := tx.Table()
+		tx.IsWebhookCalled = 0
+		databaseClient.Find(&txs, tx)
+
+		rows, err := databaseClient.Rows()
+		if err != nil {
+			message := err.Error()
+			badRequest.Message = message
+			badRequest.OnBadRequest(http.StatusInternalServerError)
+			return
+		}
+
+		for rows.Next() {
+			err := rows.Scan(&tx.Hash, &tx.From, &tx.Status, &tx.Network, &tx.CreatedAt, &tx.CompletedAt, &tx.Timeout, &tx.IsWebhookCalled, &tx.WebhookOnSuccess, &tx.WebhookOnTimeout)
+			if err != nil {
+				message := err.Error()
+				badRequest.Message = message
+				badRequest.OnBadRequest(http.StatusInternalServerError)
+				return
+			}
+			txs = append(txs, tx)
+		}
+
+		output, err := json.Marshal(txs)
+		if err != nil {
+			message := err.Error()
+			badRequest.Message = message
+			badRequest.OnBadRequest(http.StatusInternalServerError)
+			return
+		}
+
+		writer.Write(output)
 	}
 }
 
@@ -62,16 +98,16 @@ func (r *GetRequest) TransactionDetails() func(writer http.ResponseWriter, reque
 
 		var tx model.Transaction
 
-		client := query.GetRecordByHash(&tx)
-		if client.RecordNotFound() {
+		databaseClient := query.GetRecordByHash(&tx)
+		if databaseClient.RecordNotFound() {
 			message := "No records on transaction table"
 			badRequest.Message = message
 			badRequest.OnBadRequest(http.StatusInternalServerError)
 			return
 		}
 
-		row := client.Row()
-		err := row.Scan(&tx.Hash, &tx.From, &tx.Status, &tx.Network, &tx.CreatedAt, &tx.CompletedAt, &tx.Timeout, &tx.WebhookOnSuccess, &tx.WebhookOnTimeout)
+		row := databaseClient.Row()
+		err := row.Scan(&tx.Hash, &tx.From, &tx.Status, &tx.Network, &tx.CreatedAt, &tx.CompletedAt, &tx.Timeout, &tx.IsWebhookCalled, &tx.WebhookOnSuccess, &tx.WebhookOnTimeout)
 		if err != nil {
 			message := err.Error()
 			badRequest.Message = message
