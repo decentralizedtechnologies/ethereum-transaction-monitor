@@ -68,7 +68,7 @@ func (r *PostRequest) StoreTransaction() func(writer http.ResponseWriter, reques
 
 		if tx.RecordExists() {
 			message := "Transaction record exists"
-			tx.GetRecordByHash(&tx).Row().Scan(&tx.Hash, &tx.From)
+			tx.GetRecordByHash(&tx)
 			badRequest.Transaction = tx
 			badRequest.Message = message
 			badRequest.OnBadRequest(http.StatusInternalServerError)

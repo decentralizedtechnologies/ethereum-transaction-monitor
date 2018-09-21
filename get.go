@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"google.golang.org/appengine"
-
 	"gitlab.com/canya-com/canwork-database-client/model"
+	"google.golang.org/appengine"
 )
 
 // GetRequest : GET
@@ -37,27 +36,10 @@ func (r *GetRequest) MonitorTransaction() func(writer http.ResponseWriter, reque
 		txs := []model.Transaction{}
 
 		databaseClient := tx.Table()
-		tx.IsWebhookCalled = 0
-		databaseClient.Find(&txs, tx)
+		databaseClient.Where("is_webhook_called = ?", 1).Find(&txs)
 
-		rows, err := databaseClient.Rows()
-		if err != nil {
-			message := err.Error()
-			badRequest.Message = message
-			badRequest.OnBadRequest(http.StatusInternalServerError)
-			return
-		}
-
-		for rows.Next() {
-			err := rows.Scan(&tx.Hash, &tx.From, &tx.Status, &tx.Network, &tx.CreatedAt, &tx.CompletedAt, &tx.Timeout, &tx.IsWebhookCalled, &tx.WebhookOnSuccess, &tx.WebhookOnTimeout)
-			if err != nil {
-				message := err.Error()
-				badRequest.Message = message
-				badRequest.OnBadRequest(http.StatusInternalServerError)
-				return
-			}
-			txs = append(txs, tx)
-		}
+		// for _, row := range txs {
+		// }
 
 		output, err := json.Marshal(txs)
 		if err != nil {
@@ -101,15 +83,6 @@ func (r *GetRequest) TransactionDetails() func(writer http.ResponseWriter, reque
 		databaseClient := query.GetRecordByHash(&tx)
 		if databaseClient.RecordNotFound() {
 			message := "No records on transaction table"
-			badRequest.Message = message
-			badRequest.OnBadRequest(http.StatusInternalServerError)
-			return
-		}
-
-		row := databaseClient.Row()
-		err := row.Scan(&tx.Hash, &tx.From, &tx.Status, &tx.Network, &tx.CreatedAt, &tx.CompletedAt, &tx.Timeout, &tx.IsWebhookCalled, &tx.WebhookOnSuccess, &tx.WebhookOnTimeout)
-		if err != nil {
-			message := err.Error()
 			badRequest.Message = message
 			badRequest.OnBadRequest(http.StatusInternalServerError)
 			return
